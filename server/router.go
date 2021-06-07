@@ -11,7 +11,6 @@ import (
 func router() http.Handler {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/_healthcheck", handler.HealthCheck)
 	r.HandleFunc("/v1/calculate", handler.CalculateHandler)
 
 	return r

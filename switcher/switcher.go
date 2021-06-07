@@ -16,7 +16,6 @@ type (
 		m Formula
 		p Formula
 		t Formula
-		h Formula
 	}
 )
 
@@ -40,12 +39,11 @@ func NewLogical() *Logical {
 			return d + (d * float64(e) / 10)
 		},
 		p : func (d float64, e, f int) float64 {
-			return d + d * ((float64(e) - float64(f)) / 25.5)
+			return d + (d * ((float64(e) - float64(f)) / 25.5))
 		},
 		t : func (d float64, e ,f int) float64 {
 			return d - (d * float64(f) / 30)
 		},
-		h: nil,
 	}
 
 	return &l
@@ -53,64 +51,70 @@ func NewLogical() *Logical {
 
 // Calculate calculates result taking into account a provided mode
 func (l *Logical) Calculate(a, b, c bool, d float64, e, f int, mode Mode) (float64, error) {
-	err := l.adjustMode(mode)
+	m, p, t, err := l.getFormulas(mode)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("[switcher][Logical][Calculate] failed to get formulas: %w", err)
 	}
-	err = l.calculateH(a, b, c, mode)
+	h, err := l.calculateH(a, b, c, m, p, t, mode)
 	if err != nil {
-		return 0, nil
+		return 0, fmt.Errorf("[switcher][Logical][Calculate] failed to calculate H: %w", err)
 	}
 
-	k := l.h(d, e, f)
+	k := h(d, e, f)
 
-	return k, nil
+	return round(k, 0.01), nil
 }
 
-// adjustMode affects formulas that final result will be calculated with
-func (l *Logical) adjustMode(mode Mode) error {
+func (l *Logical) getFormulas(mode Mode) (Formula, Formula, Formula, error) {
+	m, p, t := l.m, l.p, l.t
+
 	switch mode {
 	case Base:
-		return nil
+		return m, p, t, nil
 	case CustomOne:
-		l.p = func (d float64, e, f int) float64 {
+		p = func (d float64, e, f int) float64 {
 			return 2 * d + (d * float64(e) / 100)
 		}
+		return m, p, t, nil
 	case CustomTwo:
-		l.m = func(d float64, e, f int) float64 {
+		m = func(d float64, e, f int) float64 {
 			return float64(f) + d + (d * float64(e) / 100)
 		}
+		return m, p, t, nil
 	default:
-		return fmt.Errorf("[switcher][Logical][adjustMode] failed to adjust mode: %w", ErrUnexpectedMode)
+		return nil, nil, nil, fmt.Errorf(
+			"[switcher][Logical][getFormulas] failed to get formulas based on mode: %w", ErrUnexpectedMode,
+		)
 	}
-
-	return nil
 }
 
 // calculateH calculates h result
-func (l *Logical) calculateH(a, b, c bool, mode Mode) error {
+func (l *Logical) calculateH(a, b, c bool, m, p, t Formula, mode Mode) (Formula, error) {
+	var h Formula
 	switch  {
 	case a && b && !c:
-		l.h = l.m
+		h = m
 	case a && b && c:
-		l.h = l.p
+		h = p
 	case !a && b && c:
-		l.h = l.t
+		h = t
 	}
 
 	switch mode {
 	case CustomTwo:
 		switch  {
 		case a && b && !c:
-			l.h = l.t
+			h = t
 		case a && !b && c:
-			l.h =l. m
+			h = m
 		}
 	}
 
-	if l.h == nil {
-		return fmt.Errorf("[switcher][Logical][calculateH] failed to calculate first result: %w", ErrUnexpectedInput)
+	if h == nil {
+		return nil, fmt.Errorf("[switcher][Logical][calculateH] failed to calculate first result: %w", ErrUnexpectedInput)
 	}
 
-	return nil
+	return h, nil
 }
+
+

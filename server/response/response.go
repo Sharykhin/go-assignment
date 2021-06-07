@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"github.com/Sharykhin/go-assignment/logger"
 	"log"
 	"net/http"
 )
@@ -29,6 +30,7 @@ func Success(w http.ResponseWriter, data interface{}) {
 }
 
 func Fial(w http.ResponseWriter, status int, err error) {
+	logger.Log.Error(err)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 

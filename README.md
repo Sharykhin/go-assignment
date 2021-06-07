@@ -30,13 +30,13 @@ to change it
 
 #### Technical description:
 For implementing http server I used Gorilla mux cause it
-provides very simple interface for managing routes and server.
+provides a very simple interface for managing routes and server.
 
 The main implementation of this assignment is in switcher package.
 The idea that there might be different switchers in my particular
-case it is logical switcher. I created struct and put formulas inside
+case it is logical one. I created struct and put formulas inside
 so we can easily adjust function costructor and for instance pass 
-formulas as parameters. To apply customer sets I use an optional 
+formulas as parameters. To apply custom sets I use an optional 
 parameter mode that can accept one of three values: base, custom1 or 
 custom2. 
 

@@ -2,9 +2,10 @@ package response
 
 import (
 	"encoding/json"
-	"github.com/Sharykhin/go-assignment/logger"
 	"log"
 	"net/http"
+
+	"github.com/Sharykhin/go-assignment/logger"
 )
 
 type (
@@ -29,7 +30,8 @@ func Success(w http.ResponseWriter, data interface{}) {
 
 }
 
-func Fial(w http.ResponseWriter, status int, err error) {
+// Fail returns error response and also logs an error
+func Fail(w http.ResponseWriter, status int, err error) {
 	logger.Log.Error(err)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

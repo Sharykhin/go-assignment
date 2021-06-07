@@ -17,7 +17,7 @@ make dev
 Use culr or whatever you want to test endpoint:
 Example:
 ```bash
-curl --location --request GET 'http://localhost:3001/v1/calculate?a=true&b=true&c=true&d=10.32&e=100&f=8&mode=base'
+curl --location --request GET 'http://localhost:3000/v1/calculate?a=true&b=true&c=true&d=10.32&e=100&f=8&mode=base'
 ```
 
 To run test:
